@@ -1,11 +1,12 @@
 from keras.models import Sequential
 from keras.layers import Dense
+from keras.layers import Dropout
 import numpy as np
 
 from numpy import genfromtxt
 
 
-trainsize = 3500
+trainsize = 3300
 
 inputs = 264
 genres = 10
@@ -18,7 +19,8 @@ print(X.shape)
 
 Y = np.zeros((Y_0.shape[0], genres))
 
-X = X / np.mean(X, axis=0)
+X += np.random.rand(X.shape[0], X.shape[1])*0.0000000001
+X = (X - np.mean(X, axis=0) ) / np.std(X, axis=0)
 
 for i in range(Y_0.shape[0]):
 	index = int(Y_0[i]) - 1
@@ -41,10 +43,10 @@ print("Y after", Y)
 # create model
 model = Sequential()
 model.add(Dense(30, input_dim=inputs, activation='relu'))
+model.add(Dropout(0.45))
+model.add(Dense(15, activation='relu'))
 model.add(Dense(12, activation='relu'))
-model.add(Dense(12, activation='relu'))
-model.add(Dense(12, activation='relu'))
-model.add(Dense(7, activation='relu'))
+model.add(Dense(8, activation='relu'))
 model.add(Dense(genres, activation='softmax'))
 
 
@@ -58,7 +60,7 @@ X1 = X[trainsize:]
 Y1 = Y[trainsize:]
 
 
-model.fit(X0, Y0, epochs=50, batch_size=10)
+model.fit(X0, Y0, epochs=100, batch_size=10)
 
 # evaluate the model
 scores = model.evaluate(X1, Y1)
