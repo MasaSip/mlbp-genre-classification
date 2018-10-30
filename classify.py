@@ -6,6 +6,10 @@ import numpy as np
 from numpy import genfromtxt
 
 
+def normalize(M):	
+	return (M - np.mean(M, axis=0) ) / (np.std(M, axis=0) + 0.001* abs(np.mean(M, axis=0)))
+
+
 trainsize = 3300
 
 inputs = 50
@@ -21,10 +25,8 @@ print(X.shape)
 
 Y = np.zeros((Y_0.shape[0], genres))
 
-def normalize(M):	
-	return (M - np.mean(M, axis=0) ) / (np.std(M, axis=0) + 0.001* abs(np.mean(M, axis=0)))
 
-
+# Shuffle training data
 numbers = np.arange(genres)
 
 for i in range(Y_0.shape[0]):
@@ -32,22 +34,11 @@ for i in range(Y_0.shape[0]):
 	numbers[index] += 1
 	Y[i][index] = 1.0
 
-print("CLASS ", numbers)
-print("CLASS ", numbers / np.sum(numbers))
-
-print(X)
-print("Y before", Y)
-print(Y.shape)
-
 ind = np.arange(X.shape[0])
-print(ind)
 np.random.shuffle(ind)
-print(X.shape)
 X = X[ind]
 Y = Y[ind]
 X.shape
-print(ind)
-print("Y after", Y)
 
 # create model
 model = Sequential()
@@ -58,19 +49,19 @@ model.add(Dense(5, activation='relu'))
 model.add(Dense(5, activation='relu', bias_initializer='ones'))
 model.add(Dense(genres, activation='softmax'))
 
-
 # Compile model
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
+# Split to train and verification data
 X0 = X[:trainsize]
 Y0 = Y[:trainsize]
 
 X1 = X[trainsize:]
 Y1 = Y[trainsize:]
 
-
+# Fit model
 model.fit(X0, Y0, epochs=2500, batch_size=3300)
 
-# evaluate the model
+# Evaluate the model
 scores = model.evaluate(X1, Y1)
 print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
