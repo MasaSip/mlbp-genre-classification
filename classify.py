@@ -21,7 +21,8 @@ print(X.shape)
 
 Y = np.zeros((Y_0.shape[0], genres))
 
-X = (X - np.mean(X, axis=0) ) / (np.std(X, axis=0) + 0.001* abs(np.mean(X, axis=0)))
+def normalize(M):	
+	return (M - np.mean(M, axis=0) ) / (np.std(M, axis=0) + 0.001* abs(np.mean(M, axis=0)))
 
 
 numbers = np.arange(genres)
