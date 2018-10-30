@@ -8,10 +8,12 @@ from numpy import genfromtxt
 
 trainsize = 3300
 
-inputs = 264
+inputs = 50
+#inputs = 264
 genres = 10
 
-X = genfromtxt('train_data.csv', delimiter=',')
+X = genfromtxt('data/pca_50.csv', delimiter=',')
+#X = genfromtxt('train_data.csv', delimiter=',')
 
 Y_0 = genfromtxt('train_labels.csv', delimiter=',')
 
@@ -45,8 +47,8 @@ model = Sequential()
 model.add(Dense(30, input_dim=inputs, activation='relu'))
 model.add(Dropout(0.45))
 model.add(Dense(15, activation='relu'))
-model.add(Dense(12, activation='relu'))
-model.add(Dense(8, activation='relu'))
+#model.add(Dense(12, activation='relu'))
+#model.add(Dense(8, activation='relu'))
 model.add(Dense(genres, activation='softmax'))
 
 
