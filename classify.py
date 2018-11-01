@@ -7,17 +7,20 @@ from numpy import genfromtxt
 
 
 def normalize(M):	
-	return (M - np.mean(M, axis=0) ) / (np.std(M, axis=0) + 0.001* abs(np.mean(M, axis=0)))
+	return (M - np.mean(M, axis=0) ) / (np.std(M, axis=0) + np.mean(M, axis=0)*0.0000001)
 
 
-trainsize = 3300
+
+trainsize = 4300
 
 inputs = 50
 #inputs = 264
 genres = 10
 
-X = genfromtxt('data/pca_50.csv', delimiter=',')
-#X = genfromtxt('train_data.csv', delimiter=',')
+X = genfromtxt('train_data.csv', delimiter=',')
+X = normalize(X)
+print(X.shape)
+inputs = len(X[0])
 
 Y_0 = genfromtxt('train_labels.csv', delimiter=',')
 
@@ -42,15 +45,16 @@ X.shape
 
 # create model
 model = Sequential()
-model.add(Dense(30, input_dim=inputs, activation='relu', bias_initializer='ones'))
-model.add(Dropout(0.7))
-model.add(Dense(6, activation='relu', bias_initializer='ones'))
-model.add(Dense(5, activation='relu'))
-model.add(Dense(5, activation='relu', bias_initializer='ones'))
+model.add(Dense(inputs // 3, input_dim=inputs, activation='softplus', bias_initializer='ones'))
+model.add(Dropout(0.5))
+model.add(Dense(20, activation='elu', bias_initializer='ones'))
+model.add(Dropout(0.1))
+model.add(Dense(14, activation='softplus'))
+model.add(Dense(6, activation='elu', bias_initializer='ones'))
 model.add(Dense(genres, activation='softmax'))
 
 # Compile model
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.compile(loss='least_squares', optimizer='adam', metrics=['accuracy'])
 
 # Split to train and verification data
 X0 = X[:trainsize]
@@ -60,8 +64,30 @@ X1 = X[trainsize:]
 Y1 = Y[trainsize:]
 
 # Fit model
-model.fit(X0, Y0, epochs=2500, batch_size=3300)
+model.fit(X0, Y0, epochs=800, batch_size=(trainsize // 2), verbose=1, validation_data=(X1, Y1))
 
 # Evaluate the model
 scores = model.evaluate(X1, Y1)
 print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
+
+
+def print_outputs():
+	Z = genfromtxt('test_data.csv', delimiter=',')
+	Z = normalize(Z)
+	print(Z.shape)
+
+	logloss = model.predict(Z)
+	print("logloss", logloss.shape, logloss)
+	np.savetxt("logloss_foo.csv", logloss, delimiter=",")
+
+	gens = np.argmax(logloss, axis=1) + 1
+	indices = np.arange(gens.shape[0]) + 1
+
+	print(gens.shape)
+	print(indices.shape)
+	gens = np.stack((indices,gens)).T
+	gens = gens.astype(int)
+	print("genres", gens.shape, gens)
+	np.savetxt("genres_foo.csv", gens, delimiter=",", fmt="%i")
+
+print_outputs()
