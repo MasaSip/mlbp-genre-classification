@@ -4,7 +4,7 @@ from keras.layers import Dropout
 import numpy as np
 
 from numpy import genfromtxt
-
+from sklearn.metrics import confusion_matrix
 
 def normalize(M):	
 	return (M - np.mean(M, axis=0) ) / (np.std(M, axis=0) + np.mean(M, axis=0)*0.0000001)
@@ -64,6 +64,14 @@ model.fit(X0, Y0, epochs=1000, batch_size=(trainsize // 2), verbose=1, validatio
 scores = model.evaluate(X1, Y1)
 print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 
+def confusion():
+	Z = np.argmax(model.predict(X1), axis=1)
+	print(Y1.shape, Z.shape)
+	matrix = confusion_matrix(np.argmax(Y1, axis=1), Z)
+	print(matrix)
+	np.savetxt("confusion.csv", matrix, delimiter=",", fmt="%i")
+
+confusion()
 
 def print_outputs():
 	Z = genfromtxt('test_data.csv', delimiter=',')
@@ -86,4 +94,4 @@ def print_outputs():
 	print("genres", gens.shape, gens)
 	np.savetxt("genres_foo.csv", gens, delimiter=",", fmt="%i")
 
-print_outputs()
+#print_outputs()
