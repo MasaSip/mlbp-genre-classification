@@ -23,7 +23,7 @@ def show_values():
     timbre_range = np.arange(216, 264)
     timbre = data[:, timbre_range]
 
-    songs = np.asarray([10,11,2200,3659])
+    songs = np.asarray([10,2200,3659])
     iters = len(songs)
 
     fig = plt.figure(figsize=(16, 8*len(songs)))
@@ -40,5 +40,5 @@ def show_values():
     plt.subplots_adjust(hspace = 0.35)
     plt.show()
 
-# show_distributions()
+show_distributions()
 show_values()
