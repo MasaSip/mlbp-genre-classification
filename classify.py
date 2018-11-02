@@ -9,7 +9,7 @@ from numpy import genfromtxt
 def normalize(M):	
 	return (M - np.mean(M, axis=0) ) / (np.std(M, axis=0) + np.mean(M, axis=0)*0.0000001)
 
-trainsize = 4300
+trainsize = 3800
 inputs = 264
 genres = 10
 
@@ -31,6 +31,7 @@ for i in range(Y_0.shape[0]):
 	numbers[index] += 1
 	Y[i][index] = 1.0
 
+np.random.seed(1)
 ind = np.arange(X.shape[0])
 np.random.shuffle(ind)
 X = X[ind]
@@ -39,11 +40,12 @@ X.shape
 
 # create model
 model = Sequential()
-model.add(Dense(30, input_dim=inputs, activation='relu', bias_initializer='ones'))
-model.add(Dropout(0.7))
-model.add(Dense(6, activation='relu', bias_initializer='ones'))
-model.add(Dense(5, activation='relu'))
-model.add(Dense(5, activation='relu', bias_initializer='ones'))
+model.add(Dense(inputs // 3, input_dim=inputs, activation='softplus', bias_initializer='ones'))
+model.add(Dropout(0.5))
+model.add(Dense(20, activation='elu', bias_initializer='ones'))
+model.add(Dropout(0.1))
+model.add(Dense(14, activation='softplus'))
+model.add(Dense(6, activation='elu', bias_initializer='ones'))
 model.add(Dense(genres, activation='softmax'))
 
 # Compile model
@@ -71,11 +73,11 @@ def print_outputs():
 	logloss = model.predict(Z)
 	print("logloss", logloss.shape, logloss)
 	indices = np.repeat(np.arange(logloss.shape[0]) + 1, 1)
-	logloss = np.c_[indices, logloss]
-	np.savetxt("logloss_foo.csv", logloss, delimiter=",", fmt="%i,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f")
-
 	gens = np.argmax(logloss, axis=1) + 1
 	
+	logloss = np.c_[indices, logloss] + 0.001
+	#print("MIN PROBS", np.min(logloss))
+	np.savetxt("logloss_foo.csv", logloss, delimiter=",", fmt="%i,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f")	
 
 	print(gens.shape)
 	print(indices.shape)
