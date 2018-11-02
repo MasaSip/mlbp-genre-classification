@@ -54,7 +54,7 @@ model.add(Dense(6, activation='elu', bias_initializer='ones'))
 model.add(Dense(genres, activation='softmax'))
 
 # Compile model
-model.compile(loss='least_squares', optimizer='adam', metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 # Split to train and verification data
 X0 = X[:trainsize]
@@ -64,7 +64,7 @@ X1 = X[trainsize:]
 Y1 = Y[trainsize:]
 
 # Fit model
-model.fit(X0, Y0, epochs=800, batch_size=(trainsize // 2), verbose=1, validation_data=(X1, Y1))
+model.fit(X0, Y0, epochs=1000, batch_size=(trainsize // 2), verbose=1, validation_data=(X1, Y1))
 
 # Evaluate the model
 scores = model.evaluate(X1, Y1)
@@ -78,10 +78,12 @@ def print_outputs():
 
 	logloss = model.predict(Z)
 	print("logloss", logloss.shape, logloss)
-	np.savetxt("logloss_foo.csv", logloss, delimiter=",")
+	indices = np.repeat(np.arange(logloss.shape[0]) + 1, 1)
+	logloss = np.c_[indices, logloss]
+	np.savetxt("logloss_foo.csv", logloss, delimiter=",", fmt="%i,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f,%1.8f")
 
 	gens = np.argmax(logloss, axis=1) + 1
-	indices = np.arange(gens.shape[0]) + 1
+	
 
 	print(gens.shape)
 	print(indices.shape)
