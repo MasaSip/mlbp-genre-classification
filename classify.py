@@ -9,12 +9,8 @@ from numpy import genfromtxt
 def normalize(M):	
 	return (M - np.mean(M, axis=0) ) / (np.std(M, axis=0) + np.mean(M, axis=0)*0.0000001)
 
-
-
 trainsize = 4300
-
-inputs = 50
-#inputs = 264
+inputs = 264
 genres = 10
 
 X = genfromtxt('train_data.csv', delimiter=',')
@@ -28,8 +24,6 @@ print(X.shape)
 
 Y = np.zeros((Y_0.shape[0], genres))
 
-
-# Shuffle training data
 numbers = np.arange(genres)
 
 for i in range(Y_0.shape[0]):
@@ -45,12 +39,11 @@ X.shape
 
 # create model
 model = Sequential()
-model.add(Dense(inputs // 3, input_dim=inputs, activation='softplus', bias_initializer='ones'))
-model.add(Dropout(0.5))
-model.add(Dense(20, activation='elu', bias_initializer='ones'))
-model.add(Dropout(0.1))
-model.add(Dense(14, activation='softplus'))
-model.add(Dense(6, activation='elu', bias_initializer='ones'))
+model.add(Dense(30, input_dim=inputs, activation='relu', bias_initializer='ones'))
+model.add(Dropout(0.7))
+model.add(Dense(6, activation='relu', bias_initializer='ones'))
+model.add(Dense(5, activation='relu'))
+model.add(Dense(5, activation='relu', bias_initializer='ones'))
 model.add(Dense(genres, activation='softmax'))
 
 # Compile model
@@ -66,7 +59,6 @@ Y1 = Y[trainsize:]
 # Fit model
 model.fit(X0, Y0, epochs=1000, batch_size=(trainsize // 2), verbose=1, validation_data=(X1, Y1))
 
-# Evaluate the model
 scores = model.evaluate(X1, Y1)
 print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 
